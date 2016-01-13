@@ -212,7 +212,7 @@ Molad.prototype.getRoshHashana = function () {
 ובשנה המעוברת, אדר ראשון מלא, ואדר שני חסר.
 */
 Molad.prototype.PshutaMonthLength = [30, 0, 0, 29, 30, 29, 30, 29, 30, 29, 30, 29];
-Molad.prototype.PshutaMonthLength = [30, 0, 0, 29, 30, 30, 29, 30, 29, 30, 29, 30, 29];
+Molad.prototype.MeuberetMonthLength = [30, 0, 0, 29, 30, 30, 29, 30, 29, 30, 29, 30, 29];
 
 Molad.prototype.getRoshChodesh = function () {
 
