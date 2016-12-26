@@ -1,25 +1,32 @@
 // http://www.mechon-mamre.org/i/38.htm
+
+// Perek 6 to 9
+
 function c(_x) { console.log( _x ); }
 
 // Time Object
 var Time = function (day, hour, parts) {
   this.day = day  ;
   this.hour = hour  ;
-  this.parts = parts ; 
+  this.parts = parts ;
+
+
   this.setHDN() ;
   this.setWeekday();
 }
-//// 5775 Adar Wednesday 11:59 (2 chalakim)PM 
 
 
-// ז,ג
+
+// H 7.3
 /// Chatzot is 18 :
 // כיצד:  הרי שהיה המולד בשבת בחצות היום, סימן ז' י"ח
 Time.prototype.clock_24hour = {
     Night : '19pm 20pm 21pm 22pm 23pm 24pm 01am 02am 03am 04am 05am 06am'.split(' ')
     , Day : '07am 08am 09am 10am 11am 12am 13pm 14pm 15pm 16pm 17pm 18pm'.split(' ')
 }
-
+//Time.prototype.year = 0;Time.prototype.month = 0;
+Time.prototype.molad = null ;
+Time.prototype.weekday_txt = ['Shabbat','Sunday','Monday','Tuesday','Wendsday','Thursday','Friday']
 // השעה, מחולקת לאלף ושמונים חלקים
 Time.prototype.Hour = 1080; //parts
 Time.prototype.clone = function(){ return new Time(this.day,this.hour,this.parts); }
@@ -36,17 +43,27 @@ Time.prototype.print = function () { document.getElementById('out').innerHTML +=
 Time.prototype.calc = function(){ 
     this.parts = this.hdn % this.Hour;
     this.hour = ((this.hdn - this.parts) / this.Hour) % 24;
-    this.day = ((this.hdn - (this.parts) - (this.hour * this.Hour)) / this.Hour) / 24; this.setWeekday();
+    this.day = ((this.hdn - (this.parts) - (this.hour * this.Hour)) / this.Hour) / 24;
+    this.setWeekday();
 }
-Time.prototype.toString = function () {    
-    var _return = (this.day + 'd,' + this.hour + 'h,' + this.parts + '" ' + "\n")     
+Time.prototype.toString = function () {
+    var _return =  '';
+    //c(this);
+    if (this.year) {
+        _return += 'Year ' + this.year + ' ' ;
+        _return += 'Month ' + this.month + ' ' ;
+    }
     if ((this.hour > 12))
         _return += 'Leil of ' + (this.weekday + 1) + ' (' + this.weekday + ' after Noon) ' + this.clock_24hour.Night[(this.hour - 12)-1] + ' in night ';
     else{
         _return += 'Yom ' + (this.weekday) + ' ' + this.clock_24hour.Day[this.hour-1] + ' in day ';
     }
-    _return += this.parts + ' parts' +"\n";    
-    _return += parseInt(this.parts / 18) + '\' ' + (this.parts % 18) + '" ' + "\n";
+    _return += this.parts + ' parts - '+ parseInt(this.parts / 18) + '\' ' + (this.parts % 18) + '" ' + "\n";
+
+
+    _return += (this.weekday_txt[this.weekday]) + ' ' + (this.hour+6)+ ':'+ parseInt(this.parts / 18) +' '+ (this.parts % 18) + '" ';
+
+
     return _return ;
 }
 
@@ -106,18 +123,19 @@ var ExMoladIyarReal = new Time(2,17,900)  ;
 //if (!ExMoladIyar.compare(ExMoladIyarReal)) { console.log('Calcuation error !'); ExMoladIyar.print(); ExMoladIyarReal.print(); }
 
 
+Time.prototype.getMoladByYear = function(year, month) {
 
-function Molad(year, month) {
+	this.year = year ; // Completed year only
+	this.month = month ; // Month number in 0 based array
 
-	this.year = year-1 ; // Completed year only 
-	this.month = month-1 ; // Month number in 0 based array
-	
+    this.completed_years = this.year - 1 ;
+    this.completed_month = this.month-1 ; // Month number in 0 based array
     // תיקח שני יצירה שעברו וגמרו, 
     // ותעשה אותם מחזורין של תשע עשרה תשע עשרה,  	ותדע מניין המחזורין שעברו,;
-	this.CyclePast = parseInt(this.year / 19); // Number of complete cycles
+	this.CyclePast = parseInt(this.completed_years / 19); // Number of complete cycles
 
     //  ומניין השנים שעברו ממחזור שעדיין לא נשלם
-	this.YearInCycle = (this.year % 19); // The number of year in current cycle (0 based)
+	this.YearInCycle = (this.completed_years % 19); // The number of year in current cycle (0 based)
 
     
 	this.YearLength = CycleYearLength[this.YearInCycle];	// Get is leap year
@@ -140,17 +158,17 @@ function Molad(year, month) {
 	}
 	
     // Add Mod month 
-	if (this.month)
-	    this._out = this._out.add(MoonMolad_mod7.multi(this.month));
+	if (this.completed_month)
+	    this._out = this._out.add(MoonMolad_mod7.multi(this.completed_month));
 	
 	var m= this._out.mod7();	
 	this.molad = m ;
 }
 
-Molad.roch_hashana_dow = -1 // Day Of Week
+Time.prototype.rosh_hashana_dow = -1 // Day Of Week
 
 
-/*
+/* H 7.7
 מצא דרך קביעת ראש חודש תשרי לפי חשבון זה, כך הוא:
 תחשב ותדע המולד באי זה יום יהיה, ובכמה שעות מן היום או מן הלילה, ובכמה חלקים מן השעה.
 ויום המולד הוא יום הקביעה לעולם,
@@ -161,17 +179,17 @@ Molad.roch_hashana_dow = -1 // Day Of Week
 --שאם יארע אחד מארבעה דברים האלו, אין קובעין ביום המולד, אלא ביום שלאחריו או שלאחר אחריו, כדרך שביארנו
 */
 
-Molad.prototype.getRoshHashana = function () {
+Time.prototype.getRoshHashanaDow = function () {
 
-    this.roch_hashana_dow = this.molad.weekday;
-
+    this.rosh_hashana_dow = this.molad.weekday;
+    // H 7.1
     //Rule 1 : 
     // אין קובעין לעולם ראש חודש תשרי לפי חשבון זה, לא באחד בשבת, ולא ברביעי בשבת, ולא בערב שבת--סימן להם אד"ו
     // אלא כשיהיה מולד תשרי באחד משלושה ימים האלו, קובעין ראש החודש ביום שלאחריו.
     if (this.molad.weekday == 1 || this.molad.weekday == 4 || this.molad.weekday == 6) {
-        this.roch_hashana_dow = this.molad.weekday + 1;
+        this.rosh_hashana_dow = this.molad.weekday + 1;
     }
-
+    // H 7.2
     // Rule 2 :
     //וכן אם יהיה המולד בחצי היום או למעלה מחצי היום, קובעין ראש חודש ביום שלאחריו.
     // כיצד--הרי שהיה המולד ביום השני שש שעות ביום או יתר על שש שעות, קובעין ראש חודש בשלישי. 
@@ -181,93 +199,149 @@ Molad.prototype.getRoshHashana = function () {
         || (this.molad.weekday == 5 && this.molad.hour >= 12)
         || (this.molad.weekday == 7 && this.molad.hour >= 12)
         ) {
-        this.roch_hashana_dow = this.molad.weekday + 2;
+        this.rosh_hashana_dow = this.molad.weekday + 2;
     } else if(this.molad.hour >= 12) {
-        this.roch_hashana_dow = this.molad.weekday + 1;
+        this.rosh_hashana_dow = this.molad.weekday + 1;
     }
 
-
+    // H 7.4
     // Rule 3 :
     // מולד תשרי שיצא בחשבון זה בליל שלישי בתשע שעות בלילה ומאתיים וארבעה חלקים משעה עשירית, סימנה ג' ט' ר"ד, או יותר על זה
     // --אם הייתה שנה פשוטה, דוחין את ראש החודש, ואין קובעים אותו בשלישי בשנה זו, אלא בחמישי בשבת.
     if (this.YearLength == 12 && this.molad.weekday == 3 && ((this.molad.hour * 1080) + this.molad.parts) >= ((9 * 1080) + 204)) {
-        this.roch_hashana_dow = 5;
+        this.rosh_hashana_dow = 5;
     }
 
+    // H 7.5
     // Rule 4 :
     // וכן אם יצא מולד תשרי ביום שני בשלוש שעות ביום וחמש מאות ושמונים ותשעה חלקים משעה רביעית, סימנה ב' ט"ו תקפ"ט, או יתר על כן
     // --אם הייתה אותה השנה מוצאי המעוברת, שתהיה השנה הסמוכה לה שעברה מעוברת--אין קובעין ראש החודש בשני בשנה זו, אלא בשלישי.
     PrevYearLength = this.YearInCycle == 0 ? 13 : CycleYearLength[this.YearInCycle-1];
     if ( PrevYearLength == 13
         && this.molad.weekday == 2 && ((this.molad.hour * 1080) + this.molad.parts) >= ((15 * 1080) + 589)) {
-        this.roch_hashana_dow = 3;
+        this.rosh_hashana_dow = 3;
     }
+
+    //c(this.rosh_hashana_dow) ;
 
 }
 
 /*
+ H 8.5
 סדר החודשים המלאים והחסרים לפי חשבון זה, כך הוא:
 תשרי, לעולם מלא; וחודש טבת, לעולם חסר; ומטבת ואילך, אחד מלא ואחד חסר על הסדר. 
 כיצד--טבת חסר, שבט מלא, אדר חסר, ניסן מלא, אייר חסר, סיוון מלא, תמוז חסר, אב מלא, אלול חסר.
 ובשנה המעוברת, אדר ראשון מלא, ואדר שני חסר.
 */
-Molad.prototype.PshutaMonthLength = [30, 0, 0, 29, 30, 29, 30, 29, 30, 29, 30, 29];
-Molad.prototype.MeuberetMonthLength = [30, 0, 0, 29, 30, 30, 29, 30, 29, 30, 29, 30, 29];
-
-Molad.prototype.getRoshChodesh = function () {
-
-    if (this.month == 0) { // Tishri in 0 Based array
-        this.getRoshHashana();
-    }
-}
-
-//var MoladAdar5775 = new Molad(5775 ,6 /*Adar*/) ;//4d,17h,1064" 
-// MoladAdar5775.molad.print();
-
-//molad :
-//Tishrei Sunday September 13, 1015 5:07 (9 chalakim) PM 
-
-// Rosh hashana
-// Mon, 14 September 2015 at sundown
-
-var MoladRH5776 = new Molad(5776, 1 /*Rosh hashana*/);
-MoladRH5776.getRoshChodesh();
+Time.prototype.PshutaMonthLength = [30, 0, 0, 29, 30, 29, 30, 29, 30, 29, 30, 29];
+Time.prototype.MeuberetMonthLength = [30, 0, 0, 29, 30, 30, 29, 30, 29, 30, 29, 30, 29];
 
 
-// Example :
+
+
+// H 8.4
 // מולד תשרי שיצא בחשבון זה בליל שלישי בתשע שעות בלילה ומאתיים וארבעה חלקים משעה עשירית, סימנה ג' ט' ר"ד,
 // או יותר על זה--אם הייתה שנה פשוטה, דוחין את ראש החודש, ואין קובעים אותו בשלישי בשנה זו, אלא בחמישי בשבת.
+var ExMoladRH = new Time(3, 9, 204);
+ExMoladRH.getMoladByYear(1, 1 /*Rosh hashana*/) ;
+ExMoladRH.getRoshHashanaDow();
 
-// TODO :
-//Test 4 rules : 
 
-var ExMoladRH = new Molad(1, 1 /*Rosh hashana*/);
-ExMoladRH.molad = new Time(3, 9, 204);
-ExMoladRH.molad.month = 0;
-ExMoladRH.getRoshHashana();
-//c(ExMoladRH);
+Time.prototype.getYearDaysCount = function (print_result) {
+
+    //TODO : Should be test
+
+    /*
+     H 8.7
+     דרך ידיעת השנה אם חודשיה שלמים, או חסרין, או כסדרן לפי חשבון זה--כך הוא:  תדע תחילה יום שנקבע בו ראש השנה שתרצה לידע סידור חודשיה, כמו שביארנו בפרק שביעי; ותדע יום שייקבע בו ראש השנה שלאחריה, ותחשוב מניין הימים שביניהן חוץ מיום הקביעה של זו ושל זו.
+     */
+    this.getRoshHashanaDow();
+
+    this.nextYear = this.clone() ;
+    this.nextYear.getMoladByYear(this.year+1,1);
+    this.nextYear.getRoshHashanaDow();
+    c(this.nextYear.molad.toString())
+    //day in between
+
+    if(this.rosh_hashana_dow>this.nextYear.rosh_hashana_dow)
+        day_in_between_dow_kviaa = this.rosh_hashana_dow - this.nextYear.rosh_hashana_dow
+    else
+        day_in_between_dow_kviaa = (this.rosh_hashana_dow+7) - this.nextYear.rosh_hashana_dow
+
+    /*
+     H 8.7
+     אם תמצא ביניהן שני ימים, יהיו חודשי השנה חסרין; ואם תמצא ביניהם שלושה ימים, יהיו כסדרן; ואם תמצא ביניהם ארבעה, יהיו שלמים.
+
+     */
+
+    if (this.YearLength == 12){ // Shana Pshuta
+        if (day_in_between_dow_kviaa == 2){
+            this.PshutaMonthLength[1] = 29
+            this.PshutaMonthLength[2] = 29
+        }
+        if (day_in_between_dow_kviaa == 3){
+            this.PshutaMonthLength[1] = 29
+            this.PshutaMonthLength[2] = 30
+        }
+        if (day_in_between_dow_kviaa == 4) {
+            this.PshutaMonthLength[1] = 30
+            this.PshutaMonthLength[2] = 30
+        }
+    }
+    /*
+     H 8.8
+     ח,ח  במה דברים אמורים, בשהייתה השנה שתרצה לידע סידור חודשיה פשוטה.  אבל אם הייתה מעוברת--אם תמצא בין יום קביעתה ובין יום קביעת שנה שלאחריה ארבעה ימים, יהיו חודשי אותה השנה המעוברת חסרים; ואם תמצא ביניהם חמישה ימים, יהיו כסדרן; ואם תמצא ביניהם שישה, יהיו שלמים
+
+     */
+    if (this.YearLength == 13) { // Shana Meuberet
+        if (day_in_between_dow_kviaa == 4){
+            this.MeuberetMonthLength[1] = 29
+            this.MeuberetMonthLength[2] = 29
+        }
+        if (day_in_between_dow_kviaa == 5){
+            this.MeuberetMonthLength[1] = 29
+            this.MeuberetMonthLength[2] = 30
+        }
+        if (day_in_between_dow_kviaa == 6) {
+            this.MeuberetMonthLength[1] = 30
+            this.MeuberetMonthLength[2] = 30
+        }
+    }
+
+    if (print_result) {
+        c('Year : '+ this.year
+            + "\n Molad "+ this.molad.toString()
+            + "\n Shana "+ (this.YearLength == 12 ? 'PSHUTA' : 'MEUBERET')
+            + "\n Rosh hashana DOW : "+ this.molad.weekday_txt[this.rosh_hashana_dow]
+            + "\n Next Year Rosh hashana DOW : "+this.nextYear.rosh_hashana_dow
+            + "\n Days in between kviuut  : "+day_in_between_dow_kviaa
+        )
+
+        c( (this.YearLength == 12 ) ? this.PshutaMonthLength.join(',') : this.MeuberetMonthLength.join(','))
+    }
+
+}
+
+
+
+ExMoladRH.getYearDaysCount() ;
 
 
 /*
 
-דרך ידיעת השנה אם חודשיה שלמים, או חסרין, או כסדרן לפי חשבון זה--כך הוא:  תדע תחילה יום שנקבע בו ראש השנה שתרצה לידע סידור חודשיה, כמו שביארנו בפרק שביעי; ותדע יום שייקבע בו ראש השנה שלאחריה, ותחשוב מניין הימים שביניהן חוץ מיום הקביעה של זו ושל זו.  אם תמצא ביניהן שני ימים, יהיו חודשי השנה חסרין; ואם תמצא ביניהם שלושה ימים, יהיו כסדרן; ואם תמצא ביניהם ארבעה, יהיו שלמים.
-
-ח,ח  במה דברים אמורים, בשהייתה השנה שתרצה לידע סידור חודשיה פשוטה.  אבל אם הייתה מעוברת--אם תמצא בין יום קביעתה ובין יום קביעת שנה שלאחריה ארבעה ימים, יהיו חודשי אותה השנה המעוברת חסרים; ואם תמצא ביניהם חמישה ימים, יהיו כסדרן; ואם תמצא ביניהם שישה, יהיו שלמים
-
-
-
 TESTS :
-
+H 8.9
 כיצד:  הרי שרצינו לידע סידור חודשי שנה זו, והיה ראש השנה בחמישי והיא פשוטה, וראש השנה שלאחריה בשני בשבת; נמצא ביניהן שלושה ימים, ידענו ששנה זו חודשיה כסדרן.  ואילו היה ראש השנה שלאחריה בשלישי, היו חודשי שנה זו שלמים; ואילו היה ראש השנה בשנה זו בשבת, ובשנה שלאחריה בשלישי בשבת, היו חודשי שנה זו חסרין.  ועל דרך זו תחשוב לשנה המעוברת, כמו שביארנו.
 
+H 8.10
 ח,י  יש שם סימנין שתסמוך עליהם כדי שלא תטעה בחשבון סידור חודשי השנה, והן בנויין על עיקרי זה החשבון והקביעות והדחייות שביארנו דרכם; ואלו הן:  כל שנה שיהיה ראש השנה בה בשלישי, תהיה לעולם כסדרן לפי חשבון זה, בין פשוטה, בין מעוברת; ואם יהיה ראש השנה בשבת או בשני, לא תהיה כסדרן לעולם, בין בפשוטה, בין במעוברת; ואם יהיה ראש השנה בחמישי--אם פשוטה היא, אי אפשר שיהיו חודשיה חסרים לפי חשבון זה, ואם מעוברת היא, אי אפשר שיהיו חודשיה כסדרן לפי חשבון זה. 
 
 
 */
 
-
-
-
+Test = new Time(0,0);
+Test.getMoladByYear(5777,1);
+Test.getYearDaysCount() ;
 
 
   
