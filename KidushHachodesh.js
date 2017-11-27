@@ -1,70 +1,10 @@
 // http://www.mechon-mamre.org/i/38.htm
 
 // Perek 6 to 9
-
-function c(_x) { console.log( _x ); }
-
-// Time Object
-var Time = function (day, hour, parts) {
-  this.day = day  ;
-  this.hour = hour  ;
-  this.parts = parts ;
-
-
-  this.setHDN() ;
-  this.setWeekday();
-}
-
-
-
-// H 7.3
-/// Chatzot is 18 :
-// כיצד:  הרי שהיה המולד בשבת בחצות היום, סימן ז' י"ח
-Time.prototype.clock_24hour = {
-    Night : '19pm 20pm 21pm 22pm 23pm 24pm 01am 02am 03am 04am 05am 06am'.split(' ')
-    , Day : '07am 08am 09am 10am 11am 12am 13pm 14pm 15pm 16pm 17pm 18pm'.split(' ')
-}
-//Time.prototype.year = 0;Time.prototype.month = 0;
-Time.prototype.molad = null ;
-Time.prototype.weekday_txt = ['Shabbat','Sunday','Monday','Tuesday','Wendsday','Thursday','Friday']
-// השעה, מחולקת לאלף ושמונים חלקים
-Time.prototype.Hour = 1080; //parts
-Time.prototype.clone = function(){ return new Time(this.day,this.hour,this.parts); }
-Time.prototype.setHDN = function() { this.hdn = this.toParts() ; }
-Time.prototype.setWeekday = function() {this.weekday =  this.day % 7 ;}
-Time.prototype.toParts = function (){ return (this.day * ( 24 * this.Hour )  ) + ( this.hour * this.Hour ) + this.parts  ;}
-Time.prototype.add = function(time){  var _c=this.clone();	_c.hdn += time.hdn ; 	_c.calc(); return _c; }
-Time.prototype.sub = function(time){ var _c=this.clone();	_c.hdn -= time.hdn ; 	_c.calc();return _c; }
-Time.prototype.multi = function(amount) { var _c=this.clone(); if (amount==0) return _c;_c.hdn *= amount ; _c.calc(); return _c; }
-Time.prototype.mod7 = function () { var _c = this.clone(); _c.day = _c.day % 7; _c.setHDN(); _c.setWeekday(); return _c; }
-Time.prototype.compare = function (time) { return this.hdn == time.hdn; }
-Time.prototype.getVarName = function () { for (o in window) { if (window[o] === this) { return o; } } return '-';}
-Time.prototype.print = function () { document.getElementById('out').innerHTML += ((this.getVarName() +"\n" + this.toString())).replace(/\n/g,'<br>') + '<hr />'; }
-Time.prototype.calc = function(){ 
-    this.parts = this.hdn % this.Hour;
-    this.hour = ((this.hdn - this.parts) / this.Hour) % 24;
-    this.day = ((this.hdn - (this.parts) - (this.hour * this.Hour)) / this.Hour) / 24;
-    this.setWeekday();
-}
-Time.prototype.toString = function () {
-    var _return =  '';
-    //c(this);
-    if (this.year) {
-        _return += 'Year ' + this.year + ' ' ;
-        _return += 'Month ' + this.month + ' ' ;
-    }
-    if ((this.hour > 12))
-        _return += 'Leil of ' + (this.weekday + 1) + ' (' + this.weekday + ' after Noon) ' + this.clock_24hour.Night[(this.hour - 12)-1] + ' in night ';
-    else{
-        _return += 'Yom ' + (this.weekday) + ' ' + this.clock_24hour.Day[this.hour-1] + ' in day ';
-    }
-    _return += this.parts + ' parts - '+ parseInt(this.parts / 18) + '\' ' + (this.parts % 18) + '" ' + "\n";
-
-
-    _return += (this.weekday_txt[this.weekday]) + ' ' + (this.hour+6)+ ':'+ parseInt(this.parts / 18) +' '+ (this.parts % 18) + '" ';
-
-
-    return _return ;
+  
+function c(_x) { 
+console.log( _x );
+//document.querySelector('#out').innerHTML += ''+_x.replace(/\n/g,'<br/>')+'<hr>';
 }
 
 
@@ -84,10 +24,11 @@ var MoonYearMeuberet = new Time(383, 21, 589);
 var MoonMolad_mod7 = MoonMolad.mod7();// new Time(1,12,793) ; //
 
 // שנת חמה
-var SunYear = new Time(365, 6, 0);
+// selon le ra shmouel
+var SunYearA1 = new Time(365, 6, 0);
 
 //שארית שנת חמה על שנת לבנה פשוטה
-var SunYear_minus_MoonYearPshuta = SunYear.sub(MoonYearPshuta)  ; // new Time(11,21,204); 
+var SunYear_minus_MoonYearPshuta = SunYearA1.sub(MoonYearPshuta)  ; // new Time(11,21,204);
 
 // שארית שנה פשוטה, ד' ח' תתע"ו
 var MoonYearPshuta_mod7 = MoonYearPshuta.mod7(); //new Time(4,8,876) 
@@ -102,25 +43,25 @@ var MoladTishriFirstYear = new Time(1, 17, 204);
 // כשתקבץ שארית כל שנה משתים עשרה שנה הפשוטות, שהיא ד' ח' תתע"ו
 // ושארית כל שנה משבע שנים המעוברות, שהיא ה' כ"א תקפ"ט
 // יישאר שני ימים ושש עשרה שעות וחמש מאות וחמישה ותשעים חלקים, סימן להם ב' י"ו תקצ"ה; וזה הוא שארית המחזור.
-var CycleMoon = MoonYearPshuta_mod7.multi(12).add(MoonYearMeuberet_mod7.multi(7)).mod7() //new Time(2d,16h,595);
+var CycleMoon = MoonYearPshuta_mod7.multi(12).add(MoonYearMeuberet_mod7.multi(7)).mod7() ;//new Time(2d,16h,595);
 
 
-var CycleSun = SunYear.multi(19).mod7(); // new Time(2,18h,0);
+var CycleSun = SunYearA1.multi(19).mod7(); // new Time(2,18h,0);
 
 //  והשבע השנים המעוברות שבכל מחזור ומחזור לפי חשבון זה, הם שנה שלישית מן המחזור ושישית ושמינית ושנת אחת עשרה ושנת ארבע עשרה ושנת שבע עשרה ושנת תשע עשרה.
 var CycleYearLength = [12, 12, 13/*3*/, 12, 12, 13 /*6*/, 12, 13/*8*/, 12, 12, 13/*11*/, 12, 12, 13/*14*/, 12, 12, 13/*17*/, 12, 13/*19*/];
 
 // תמצא הכול תשע עשרה שנה משני החמה, שכל שנה מהן שלוש מאות וחמישה ושישים יום ושש שעות בשווה:
 // ולא יישאר ממניין ימי החמה בכל תשע עשרה שנה זו, חוץ משעה אחת וארבע מאות ושמונים וחמישה חלקים, סימן להם א' תפ"ה.
-var Mod_CycleSun_CycleMoon = CycleSun.sub(CycleMoon) //new Time(0,1,485);
+var Mod_CycleSun_CycleMoon = CycleSun.sub(CycleMoon); //new Time(0,1,485);
 
 // כשיהיה עימך ידוע מולד חודש מן החודשים, ותוסיף עליו א' י"ב תשצ"ג--ייצא מולד חודש שאחריו, ותדע באי זה יום מימי השבוע ובאי זו שעה ובכמה חלק יהיה. 
 //  כיצד--הרי שהיה מולד ניסן באחד בשבת בחמש שעות ביום ומאה ושבעה חלקים, סימן להם א' ה' ק"ז
 //  ז  כשתוסיף עליו שארית חודש לבנה, והוא א' י"ב תשצ"ג--ייצא מולד אייר בליל שלישי חמש שעות בלילה ותשע מאות חלקים, סימן להם ג' ה' תת"ק. 
 var ExMoladNissan = new Time (1,5,107) ;
 var ExMoladIyar = ExMoladNissan.add(MoonMolad_mod7); 
-var ExMoladIyarReal = new Time(2,17,900)  ; 
-//if (!ExMoladIyar.compare(ExMoladIyarReal)) { console.log('Calcuation error !'); ExMoladIyar.print(); ExMoladIyarReal.print(); }
+var ExMoladIyarReal = new Time(2,17,900)  ;
+if (!ExMoladIyar.compare(ExMoladIyarReal)) { c('Calcuation error !'); ExMoladIyar.print(); ExMoladIyarReal.print(); }
 
 
 Time.prototype.getMoladByYear = function(year, month) {
@@ -163,9 +104,9 @@ Time.prototype.getMoladByYear = function(year, month) {
 	
 	var m= this._out.mod7();	
 	this.molad = m ;
-}
+};
 
-Time.prototype.rosh_hashana_dow = -1 // Day Of Week
+Time.prototype.rosh_hashana_dow = 0 ;// Day Of Week
 
 
 /* H 7.7
@@ -194,13 +135,15 @@ Time.prototype.getRoshHashanaDow = function () {
     //וכן אם יהיה המולד בחצי היום או למעלה מחצי היום, קובעין ראש חודש ביום שלאחריו.
     // כיצד--הרי שהיה המולד ביום השני שש שעות ביום או יתר על שש שעות, קובעין ראש חודש בשלישי. 
     // ואם יהיה המולד קודם חצי היום, אפילו בחלק אחד--קובעין ראש החודש באותו יום המולד עצמו:  והוא, שלא יהיה אותו היום מימי אד"ו.
-    if (
-        (this.molad.weekday == 2 && this.molad.hour >= 12)
-        || (this.molad.weekday == 5 && this.molad.hour >= 12)
-        || (this.molad.weekday == 7 && this.molad.hour >= 12)
+    // Half of the day mean 18 !!!!!!!!
+	
+	if (
+        (this.molad.weekday == 2 && this.molad.hour >= 18)
+        || (this.molad.weekday == 5 && this.molad.hour >= 18)
+        || (this.molad.weekday == 7 && this.molad.hour >= 18)
         ) {
-        this.rosh_hashana_dow = this.molad.weekday + 2;
-    } else if(this.molad.hour >= 12) {
+        this.rosh_hashana_dow = this.molad.weekday + 2 ;
+    } else if(this.molad.hour >= 18) {
         this.rosh_hashana_dow = this.molad.weekday + 1;
     }
 
@@ -224,7 +167,7 @@ Time.prototype.getRoshHashanaDow = function () {
 
     //c(this.rosh_hashana_dow) ;
 
-}
+};
 
 /*
  H 8.5
@@ -260,13 +203,16 @@ Time.prototype.getYearDaysCount = function (print_result) {
     this.nextYear = this.clone() ;
     this.nextYear.getMoladByYear(this.year+1,1);
     this.nextYear.getRoshHashanaDow();
-    c(this.nextYear.molad.toString())
+
+
+    //c(this.nextYear.molad.toString());
+
     //day in between
 
     if(this.rosh_hashana_dow>this.nextYear.rosh_hashana_dow)
-        day_in_between_dow_kviaa = this.rosh_hashana_dow - this.nextYear.rosh_hashana_dow
+        day_in_between_dow_kviaa = this.rosh_hashana_dow - this.nextYear.rosh_hashana_dow;
     else
-        day_in_between_dow_kviaa = (this.rosh_hashana_dow+7) - this.nextYear.rosh_hashana_dow
+        day_in_between_dow_kviaa = (this.rosh_hashana_dow+7) - this.nextYear.rosh_hashana_dow;
 
     /*
      H 8.7
@@ -276,16 +222,16 @@ Time.prototype.getYearDaysCount = function (print_result) {
 
     if (this.YearLength == 12){ // Shana Pshuta
         if (day_in_between_dow_kviaa == 2){
-            this.PshutaMonthLength[1] = 29
-            this.PshutaMonthLength[2] = 29
+            this.PshutaMonthLength[1] = 29;
+            this.PshutaMonthLength[2] = 29;
         }
         if (day_in_between_dow_kviaa == 3){
-            this.PshutaMonthLength[1] = 29
-            this.PshutaMonthLength[2] = 30
+            this.PshutaMonthLength[1] = 29;
+            this.PshutaMonthLength[2] = 30;
         }
         if (day_in_between_dow_kviaa == 4) {
-            this.PshutaMonthLength[1] = 30
-            this.PshutaMonthLength[2] = 30
+            this.PshutaMonthLength[1] = 30;
+            this.PshutaMonthLength[2] = 30;
         }
     }
     /*
@@ -295,16 +241,16 @@ Time.prototype.getYearDaysCount = function (print_result) {
      */
     if (this.YearLength == 13) { // Shana Meuberet
         if (day_in_between_dow_kviaa == 4){
-            this.MeuberetMonthLength[1] = 29
-            this.MeuberetMonthLength[2] = 29
+            this.MeuberetMonthLength[1] = 29;
+            this.MeuberetMonthLength[2] = 29;
         }
         if (day_in_between_dow_kviaa == 5){
-            this.MeuberetMonthLength[1] = 29
-            this.MeuberetMonthLength[2] = 30
+            this.MeuberetMonthLength[1] = 29;
+            this.MeuberetMonthLength[2] = 30;
         }
         if (day_in_between_dow_kviaa == 6) {
-            this.MeuberetMonthLength[1] = 30
-            this.MeuberetMonthLength[2] = 30
+            this.MeuberetMonthLength[1] = 30;
+            this.MeuberetMonthLength[2] = 30;
         }
     }
 
@@ -313,19 +259,19 @@ Time.prototype.getYearDaysCount = function (print_result) {
             + "\n Molad "+ this.molad.toString()
             + "\n Shana "+ (this.YearLength == 12 ? 'PSHUTA' : 'MEUBERET')
             + "\n Rosh hashana DOW : "+ this.molad.weekday_txt[this.rosh_hashana_dow]
-            + "\n Next Year Rosh hashana DOW : "+this.nextYear.rosh_hashana_dow
+            + "\n Next Year Rosh hashana DOW : "+ this.molad.weekday_txt[this.nextYear.rosh_hashana_dow]
             + "\n Days in between kviuut  : "+day_in_between_dow_kviaa
         )
 
-        c( (this.YearLength == 12 ) ? this.PshutaMonthLength.join(',') : this.MeuberetMonthLength.join(','))
+        c( (this.YearLength == 12 ) ? this.PshutaMonthLength.join(',') : this.MeuberetMonthLength.join(','));
     }
 
 }
 
 
 
-ExMoladRH.getYearDaysCount() ;
-
+ExMoladRH.getYearDaysCount(1) ;
+ExMoladRH.print();
 
 /*
 
