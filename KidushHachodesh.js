@@ -4,11 +4,13 @@
   
 function c(_x) {
 
+    console.trace() ;
     document.querySelector('#out').innerHTML += 'C : '+ _x+ '<hr />';
 
     //console.log( _x );
 }
 
+/*
 // כשיהיה עימך ידוע מולד חודש מן החודשים, ותוסיף עליו א' י"ב תשצ"ג--ייצא מולד חודש שאחריו, ותדע באי זה יום מימי השבוע ובאי זו שעה ובכמה חלק יהיה. 
 //  כיצד--הרי שהיה מולד ניסן באחד בשבת בחמש שעות ביום ומאה ושבעה חלקים, סימן להם א' ה' ק"ז
 //  ז  כשתוסיף עליו שארית חודש לבנה, והוא א' י"ב תשצ"ג--ייצא מולד אייר בליל שלישי חמש שעות בלילה ותשע מאות חלקים, סימן להם ג' ה' תת"ק. 
@@ -21,7 +23,7 @@ if (!ExMoladIyar.compare(ExMoladIyarReal)) {
     ExMoladIyarReal.print();
 }
 
-
+*/
 //H 7.6
 
 
@@ -50,7 +52,15 @@ if (!ExMoladIyar.compare(ExMoladIyarReal)) {
 * */
 
 
-Test = new Time(0,0).getMoladByYear(5780,1).getYearDaysCount() ;
+Test = new Time(0,0,0,5781,10) // We have 13 months
+
+
+
+//console.log(Test);
+
+console.log(Test.getYearDaysCount());
+
+
 
 
   
